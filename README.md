@@ -3,7 +3,7 @@
 
 This mod allows you to remove context from reports in order to bring the victim *out of context*, getting them banned for having said nothing bad.  
 
-**Example:**  
+**Example:** *All messages start with a checkmark*  
 ![KKK](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/kkk.png)  
 ![loves hypixel](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/lovesHypixel.png)  
 
