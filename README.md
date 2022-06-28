@@ -3,7 +3,7 @@
 
 This mod allows you to remove context from reports in order to bring the victim *out of context*, getting them banned for having said nothing bad.  
 
-This mod will be released in 1.19.1, so if it's not fixed by then ¯\_(ツ)_/¯
+This mod will be released in 1.19.1, so if it's not fixed by then ¯\\_(ツ)_/¯ -
 Devs have been informed...
 
 **Example:** *All messages start with a checkmark*  
