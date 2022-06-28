@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ca.fxco.fabricatedchatreports.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "ChatReportScreenMixin",
+    "MinecraftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
