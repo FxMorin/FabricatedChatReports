@@ -84,7 +84,7 @@ public class ModifyReportScreen extends Screen {
                         280,
                         20,
                         Component.literal("Modify chat context"),
-                        button -> this.minecraft.setScreen(new ContextModifyingScreen(this, this.reportingContext, this.abuseReport, modifiedAbuseReport -> {
+                        button -> this.minecraft.setScreen(new ContextModifyingScreen(this, this.abuseReport, modifiedAbuseReport -> {
                             this.abuseReport = modifiedAbuseReport;
                             this.onReportChanged();
                         }))

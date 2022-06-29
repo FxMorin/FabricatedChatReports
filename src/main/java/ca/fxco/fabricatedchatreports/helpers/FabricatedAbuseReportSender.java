@@ -43,7 +43,8 @@ public record FabricatedAbuseReportSender(ReportEnvironment environment, UserApi
                         abuseReportRequest = new AbuseReportRequest(uUID, abuseReport, this.environment.clientInfo(), this.environment.thirdPartyServerInfo(), this.environment.realmInfo());
                     }
                     try {
-                        this.userApiService.reportAbuse(abuseReportRequest);
+                        System.out.println(ObjectMapper.create().writeValueAsString(abuseReportRequest));
+                        //this.userApiService.reportAbuse(abuseReportRequest);
                         return Unit.INSTANCE;
                     } catch (MinecraftClientHttpException var6) {
                         Component component = this.getHttpErrorDescription(var6);
