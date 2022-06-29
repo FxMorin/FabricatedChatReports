@@ -259,12 +259,12 @@ public class ContextModifyingScreen extends Screen {
                 if (Minecraft.getInstance().level != null) {
                     Player player = Minecraft.getInstance().level.getPlayerByUUID(chatMessage.profileId);
                     if (player != null) {
-                        this.username = player.getName().getString();
+                        this.username = player.getScoreboardName();
                     } else {
-                        this.username = chatMessage.profileId.toString();
+                        this.username = chatMessage.profileId.toString().substring(0, 8);
                     }
                 } else {
-                    this.username = chatMessage.profileId.toString();
+                    this.username = chatMessage.profileId.toString().substring(0, 8);
                 }
             }
 
