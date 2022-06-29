@@ -20,6 +20,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import static ca.fxco.fabricatedchatreports.FabricatedChatReports.DEBUG_MODE;
+
 @Environment(EnvType.CLIENT)
 public record FabricatedAbuseReportSender(ReportEnvironment environment, UserApiService userApiService) implements AbuseReportSender {
     private static final Component SERVICE_UNAVAILABLE_TEXT = Component.translatable("gui.abuseReport.send.service_unavailable");
@@ -43,8 +45,11 @@ public record FabricatedAbuseReportSender(ReportEnvironment environment, UserApi
                         abuseReportRequest = new AbuseReportRequest(uUID, abuseReport, this.environment.clientInfo(), this.environment.thirdPartyServerInfo(), this.environment.realmInfo());
                     }
                     try {
-                        System.out.println(ObjectMapper.create().writeValueAsString(abuseReportRequest));
-                        //this.userApiService.reportAbuse(abuseReportRequest);
+                        if (DEBUG_MODE) {
+                            System.out.println(ObjectMapper.create().writeValueAsString(abuseReportRequest));
+                        } else {
+                            this.userApiService.reportAbuse(abuseReportRequest);
+                        }
                         return Unit.INSTANCE;
                     } catch (MinecraftClientHttpException var6) {
                         Component component = this.getHttpErrorDescription(var6);
@@ -60,7 +65,7 @@ public record FabricatedAbuseReportSender(ReportEnvironment environment, UserApi
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return DEBUG_MODE || this.userApiService.canSendReports();
     }
 
     private Component getHttpErrorDescription(MinecraftClientHttpException minecraftClientHttpException) {

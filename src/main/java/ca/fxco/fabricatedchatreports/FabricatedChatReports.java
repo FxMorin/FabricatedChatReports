@@ -13,6 +13,8 @@ public class FabricatedChatReports implements ClientModInitializer {
 
     public static Logger LOGGER = LoggerFactory.getLogger("fabricated_chat_reports");
 
+    public static boolean DEBUG_MODE = true;
+
     @Override
     public void onInitializeClient() {}
 }
