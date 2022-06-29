@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class ContextModifyingScreen extends Screen {
-    private static final Component CONTEXT_INFO = Component.literal("Select messages to remove from the report").withStyle(ChatFormatting.GRAY);
+    private static final Component CONTEXT_INFO = Component.literal("This is all the evidence that will be sent to Mojang").withStyle(ChatFormatting.GRAY);
     @Nullable
     private final Screen lastScreen;
     private MultiLineLabel contextInfoLabel;
