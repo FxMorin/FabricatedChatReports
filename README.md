@@ -1,6 +1,8 @@
 # Fabricated Chat Reports
 #### This is for demonstrating issues with the current reporting system only!
 
+[![GitHub all releases](https://img.shields.io/github/downloads/fxmorin/fabricatedchatreports/total?style=flat-square&logo=github)](https://github.com/fxmorin/fabricatedchatreports)
+
 This mod allows you to remove context from reports in order to bring the victim *out of context*, getting them banned for having said nothing bad.
 
 *The public version of the mod does not contain the 3 other vulnerabilities of the chat report system, as that may cause more chaos than im willing to take the blame for xD*
