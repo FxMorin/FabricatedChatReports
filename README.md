@@ -3,6 +3,8 @@
 
 This mod allows you to remove context from reports in order to bring the victim *out of context*, getting them banned for having said nothing bad.
 
+*The public version of the mod does not contain the 3 other vulnerabilities of the chat report system, as that may cause more chaos than im willing to take the blame for xD*
+
 **Example:** *All messages start with a checkmark*  
 ![KKK](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/kkk.png)  
 ![loves hypixel](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/lovesHypixel.png)  
