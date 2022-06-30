@@ -4,18 +4,27 @@ import ca.fxco.fabricatedchatreports.FabricatedChatReports;
 import ca.fxco.fabricatedchatreports.helpers.FabricatedAbuseReport;
 import com.mojang.authlib.minecraft.report.ReportChatMessage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.*;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Signer;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.MultilineText;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.EntryListWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.encryption.Signer;
+import net.minecraft.network.message.ChatMessageSigner;
+import net.minecraft.network.message.MessageSignature;
+import net.minecraft.screen.ScreenTexts;
+import net.minecraft.text.StringVisitable;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -25,21 +34,21 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class ContextModifyingScreen extends Screen {
-    private static final Component CONTEXT_INFO = Component.literal("This is all the evidence that will be sent to Mojang").withStyle(ChatFormatting.GRAY);
+    private static final Text CONTEXT_INFO = Text.literal("This is all the evidence that will be sent to Mojang").formatted(Formatting.GRAY);
     @Nullable
     private final Screen lastScreen;
-    private MultiLineLabel contextInfoLabel;
+    private MultilineText contextInfoLabel;
     @Nullable
     private ContextModifyingScreen.ChatModifyingList chatModifyingList;
     final FabricatedAbuseReport abuseReport;
     private final Consumer<FabricatedAbuseReport> onSelected;
 
-    protected EditBox messageEdit;
+    protected TextFieldWidget messageEdit;
 
     public ContextModifyingScreen(
             @Nullable Screen screen, FabricatedAbuseReport abuseReport, Consumer<FabricatedAbuseReport> consumer
     ) {
-        super(Component.literal("Right click to toggle messages. Left click to modify YOUR messages"));
+        super(Text.literal("Right click to toggle messages. Left click to modify YOUR messages"));
         this.lastScreen = screen;
         this.abuseReport = abuseReport;
         this.onSelected = consumer;
@@ -78,45 +87,45 @@ public class ContextModifyingScreen extends Screen {
 
     @Override
     protected void init() {
-        this.contextInfoLabel = MultiLineLabel.create(this.font, CONTEXT_INFO, this.width - 16);
-        this.chatModifyingList = new ChatModifyingList(this.minecraft, (this.contextInfoLabel.getLineCount() + 1) * 9);
+        this.contextInfoLabel = MultilineText.create(this.textRenderer, CONTEXT_INFO, this.width - 16);
+        this.chatModifyingList = new ChatModifyingList(this.client, (this.contextInfoLabel.count() + 1) * 9);
         this.chatModifyingList.setRenderBackground(false);
         this.chatModifyingList.acceptMessages(this.abuseReport.evidence.messages);
-        this.addWidget(this.chatModifyingList);
-        this.addRenderableWidget(new Button(this.width / 2 - 155, this.height - 32, 150, 20, CommonComponents.GUI_BACK, button -> this.onClose()));
-        this.addRenderableWidget(
-                new Button(this.width / 2 - 155 + 160, this.height - 32, 150, 20, CommonComponents.GUI_DONE, button -> {
+        this.addSelectableChild(this.chatModifyingList);
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - 155, this.height - 32, 150, 20, ScreenTexts.BACK, button -> this.close()));
+        this.addDrawableChild(
+                new ButtonWidget(this.width / 2 - 155 + 160, this.height - 32, 150, 20, ScreenTexts.DONE, button -> {
                     modifyAbuseReport(this.abuseReport);
                     this.onSelected.accept(this.abuseReport);
-                    this.onClose();
+                    this.close();
                 })
         );
         this.chatModifyingList.setScrollAmount(this.chatModifyingList.getMaxScroll());
-        this.messageEdit = new EditBox(this.font, this.width / 2 - 150, 80, 300, 20, CommonComponents.EMPTY);
+        this.messageEdit = new TextFieldWidget(this.textRenderer, this.width / 2 - 150, 80, 300, 20, ScreenTexts.EMPTY);
         this.messageEdit.setMaxLength(256);
-        this.messageEdit.setValue("");
-        this.addWidget(this.messageEdit);
+        this.messageEdit.setText("");
+        this.addSelectableChild(this.messageEdit);
         this.messageEdit.active = false;
         this.messageEdit.visible = false;
         this.chatModifyingList.acceptMessageBox(this.messageEdit);
     }
 
     @Override
-    public void resize(Minecraft minecraft, int i, int j) {
-        String string = this.messageEdit.getValue();
+    public void resize(MinecraftClient minecraft, int i, int j) {
+        String string = this.messageEdit.getText();
         boolean active = this.messageEdit.active;
         this.init(minecraft, i, j);
-        this.messageEdit.setValue(string);
+        this.messageEdit.setText(string);
         this.messageEdit.active = active;
         this.messageEdit.visible = active;
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
+    public void render(MatrixStack poseStack, int i, int j, float f) {
         this.renderBackground(poseStack);
         this.chatModifyingList.render(poseStack, i, j, f);
-        drawCenteredString(poseStack, this.font, this.title, this.width / 2, 16, 16777215);
-        this.contextInfoLabel.renderCentered(poseStack, this.width / 2, this.chatModifyingList.getFooterTop());
+        drawCenteredText(poseStack, this.textRenderer, this.title, this.width / 2, 16, 16777215);
+        this.contextInfoLabel.drawCenterWithShadow(poseStack, this.width / 2, this.chatModifyingList.getFooterTop());
         this.messageEdit.render(poseStack, i, j, f);
         super.render(poseStack, i, j, f);
     }
@@ -128,27 +137,27 @@ public class ContextModifyingScreen extends Screen {
     }
 
     @Override
-    public void onClose() {
+    public void close() {
         this.onSelected.accept(this.abuseReport);
-        this.minecraft.setScreen(this.lastScreen);
+        this.client.setScreen(this.lastScreen);
     }
 
     @Override
-    public Component getNarrationMessage() {
-        return CommonComponents.joinForNarration(super.getNarrationMessage(), CONTEXT_INFO);
+    public Text getNarratedTitle() {
+        return ScreenTexts.joinSentences(super.getNarratedTitle(), CONTEXT_INFO);
     }
 
     @Environment(EnvType.CLIENT)
-    public class ChatModifyingList extends ObjectSelectionList<ChatModifyingList.Entry> implements Output {
+    public class ChatModifyingList extends AlwaysSelectedEntryListWidget<ChatModifyingList.Entry> implements Output {
 
-        public EditBox messageEdit;
+        public TextFieldWidget messageEdit;
 
-        public ChatModifyingList(Minecraft minecraft, int i) {
+        public ChatModifyingList(MinecraftClient minecraft, int i) {
             super(minecraft, ContextModifyingScreen.this.width, ContextModifyingScreen.this.height, 40, ContextModifyingScreen.this.height - 40 - i, 16);
         }
 
         @Override
-        public void acceptMessageBox(EditBox box) {
+        public void acceptMessageBox(TextFieldWidget box) {
             this.messageEdit = box;
         }
 
@@ -158,7 +167,7 @@ public class ContextModifyingScreen extends Screen {
         }
 
         @Override
-        protected int getScrollbarPosition() {
+        protected int getScrollbarPositionX() {
             return (this.width + this.getRowWidth()) / 2;
         }
 
@@ -168,21 +177,21 @@ public class ContextModifyingScreen extends Screen {
         }
 
         @Override
-        protected void renderItem(PoseStack poseStack, int i, int j, float f, int k, int l, int m, int n, int o) {
+        protected void renderEntry(MatrixStack poseStack, int i, int j, float f, int k, int l, int m, int n, int o) {
             ChatModifyingList.Entry entry = this.getEntry(k);
             if (this.shouldHighlightEntry(entry)) {
-                boolean bl = this.getSelected() == entry;
+                boolean bl = this.getSelectedOrNull() == entry;
                 int p = this.isFocused() && bl ? -1 : -8355712;
-                this.renderSelection(poseStack, m, n, o, p, -16777216);
+                this.drawSelectionHighlight(poseStack, m, n, o, p, -16777216);
             }
-            entry.render(poseStack, k, m, l, n, o, i, j, this.getHovered() == entry, f);
+            entry.render(poseStack, k, m, l, n, o, i, j, this.getHoveredEntry() == entry, f);
         }
 
         private boolean shouldHighlightEntry(ChatModifyingList.Entry entry) {
             if (entry.canSelect()) {
-                boolean bl = this.getSelected() == entry;
-                boolean bl2 = this.getSelected() == null;
-                boolean bl3 = this.getHovered() == entry;
+                boolean bl = this.getSelectedOrNull() == entry;
+                boolean bl2 = this.getSelectedOrNull() == null;
+                boolean bl3 = this.getHoveredEntry() == entry;
                 return bl || bl2 && bl3 && entry.shouldInclude();
             } else {
                 return false;
@@ -190,13 +199,13 @@ public class ContextModifyingScreen extends Screen {
         }
 
         @Override
-        protected void moveSelection(AbstractSelectionList.SelectionDirection selectionDirection) {
-            if (!this.moveSelectableSelection(selectionDirection) && selectionDirection == AbstractSelectionList.SelectionDirection.UP)
+        protected void moveSelection(EntryListWidget.MoveDirection selectionDirection) {
+            if (!this.moveSelectableSelection(selectionDirection) && selectionDirection == EntryListWidget.MoveDirection.UP)
                 this.moveSelectableSelection(selectionDirection);
         }
 
-        private boolean moveSelectableSelection(AbstractSelectionList.SelectionDirection selectionDirection) {
-            return this.moveSelection(selectionDirection, ChatModifyingList.Entry::canSelect);
+        private boolean moveSelectableSelection(EntryListWidget.MoveDirection selectionDirection) {
+            return this.moveSelectionIf(selectionDirection, ChatModifyingList.Entry::canSelect);
         }
 
         @Override
@@ -207,7 +216,7 @@ public class ContextModifyingScreen extends Screen {
 
         @Override
         public boolean keyPressed(int i, int j, int k) {
-            ChatModifyingList.Entry entry = this.getSelected();
+            ChatModifyingList.Entry entry = this.getSelectedOrNull();
             if (entry != null && entry.keyPressed(i, j, k)) {
                 return true;
             } else {
@@ -223,7 +232,7 @@ public class ContextModifyingScreen extends Screen {
         }
 
         public int getFooterTop() {
-            return this.y1 + 9;
+            return this.bottom + 9;
         }
 
         @Override
@@ -232,10 +241,10 @@ public class ContextModifyingScreen extends Screen {
         }
 
         @Environment(EnvType.CLIENT)
-        public abstract class Entry extends ObjectSelectionList.Entry<ChatModifyingList.Entry> {
+        public abstract class Entry extends AlwaysSelectedEntryListWidget.Entry<ChatModifyingList.Entry> {
             @Override
-            public Component getNarration() {
-                return CommonComponents.EMPTY;
+            public Text getNarration() {
+                return ScreenTexts.EMPTY;
             }
 
             public boolean isSelected() {
@@ -267,11 +276,11 @@ public class ContextModifyingScreen extends Screen {
 
         @Environment(EnvType.CLIENT)
         public class MessageEntry extends ChatModifyingList.Entry {
-            private static final ResourceLocation CHECKMARK_TEXTURE = new ResourceLocation("realms", "textures/gui/realms/checkmark.png");
+            private static final Identifier CHECKMARK_TEXTURE = new Identifier("realms", "textures/gui/realms/checkmark.png");
             private static final int CHECKMARK_WIDTH = 9;
             private static final int CHECKMARK_HEIGHT = 8;
             private static final int INDENT_AMOUNT = 11;
-            private FormattedText text;
+            private StringVisitable text;
             private final String username;
             private final ReportChatMessage chatMessage;
             private boolean includeMessage;
@@ -281,17 +290,17 @@ public class ContextModifyingScreen extends Screen {
 
             public MessageEntry(ReportChatMessage chatMessage) {
                 this.chatMessage = chatMessage;
-                Component component = Component.literal(chatMessage.message);
-                FormattedText formattedText = ContextModifyingScreen.this.font.substrByWidth(component, this.getMaximumTextWidth() - ContextModifyingScreen.this.font.width(CommonComponents.ELLIPSIS));
-                this.text = component != formattedText ? FormattedText.composite(formattedText, CommonComponents.ELLIPSIS) : component;
+                Text component = Text.literal(chatMessage.message);
+                StringVisitable formattedText = ContextModifyingScreen.this.textRenderer.trimToWidth(component, this.getMaximumTextWidth() - ContextModifyingScreen.this.textRenderer.getWidth(ScreenTexts.ELLIPSIS));
+                this.text = component != formattedText ? StringVisitable.concat(formattedText, ScreenTexts.ELLIPSIS) : component;
                 this.includeMessage = true;
                 this.hasChanged = false;
                 this.wasReported = chatMessage.messageReported;
-                this.canModify = !this.wasReported && chatMessage.profileId == Minecraft.getInstance().player.getUUID();
-                if (Minecraft.getInstance().level != null) {
-                    Player player = Minecraft.getInstance().level.getPlayerByUUID(chatMessage.profileId);
+                this.canModify = !this.wasReported && chatMessage.profileId == MinecraftClient.getInstance().player.getUuid();
+                if (MinecraftClient.getInstance().world != null) {
+                    PlayerEntity player = MinecraftClient.getInstance().world.getPlayerByUuid(chatMessage.profileId);
                     if (player != null) {
-                        this.username = player.getScoreboardName();
+                        this.username = player.getEntityName();
                     } else {
                         this.username = chatMessage.profileId.toString().substring(0, 8);
                     }
@@ -304,7 +313,7 @@ public class ContextModifyingScreen extends Screen {
             public void modifyText(String text) {
                 if (this.canModify) {
                     this.hasChanged = !Objects.equals(this.text.getString(), text);
-                    this.text = Component.literal(text);
+                    this.text = Text.literal(text);
                 }
             }
 
@@ -324,27 +333,27 @@ public class ContextModifyingScreen extends Screen {
             }
 
             @Override
-            public void render(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
+            public void render(MatrixStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
                 int p = k + this.getTextIndent();
                 int q = j + 1 + (m - CHECKMARK_WIDTH) / 2;
                 if (this.isSelected() && this.includeMessage || !this.canModify) {
                     this.renderCheckmark(poseStack, j, k, m);
                 }
                 if (this.wasReported) {
-                    drawString(poseStack,ContextModifyingScreen.this.font, Component.literal(this.username).withStyle(Style.EMPTY.withColor(ChatFormatting.RED)), p, q, this.includeMessage ? -1 : -1593835521);
+                    drawTextWithShadow(poseStack,ContextModifyingScreen.this.textRenderer, Text.literal(this.username).fillStyle(Style.EMPTY.withColor(Formatting.RED)), p, q, this.includeMessage ? -1 : -1593835521);
                 } else if (this.canModify) {
-                    drawString(poseStack,ContextModifyingScreen.this.font, this.username, p, q, this.includeMessage ? -1 : -1593835521);
+                    drawStringWithShadow(poseStack,ContextModifyingScreen.this.textRenderer, this.username, p, q, this.includeMessage ? -1 : -1593835521);
                 } else {
-                    drawString(poseStack,ContextModifyingScreen.this.font, Component.literal(this.username).withStyle(Style.EMPTY.withColor(ChatFormatting.GRAY)), p, q, this.includeMessage ? -1 : -1593835521);
+                    drawTextWithShadow(poseStack,ContextModifyingScreen.this.textRenderer, Text.literal(this.username).fillStyle(Style.EMPTY.withColor(Formatting.GRAY)), p, q, this.includeMessage ? -1 : -1593835521);
                 }
-                drawString(poseStack, ContextModifyingScreen.this.font, this.text.getString(), p + 90, q, this.includeMessage ? -1 : -1593835521);
+                drawStringWithShadow(poseStack, ContextModifyingScreen.this.textRenderer, this.text.getString(), p + 90, q, this.includeMessage ? -1 : -1593835521);
             }
 
-            private void renderCheckmark(PoseStack poseStack, int i, int j, int k) {
+            private void renderCheckmark(MatrixStack poseStack, int i, int j, int k) {
                 int m = i + (k - CHECKMARK_HEIGHT) / 2;
                 RenderSystem.setShaderTexture(0, CHECKMARK_TEXTURE);
                 RenderSystem.enableBlend();
-                GuiComponent.blit(poseStack, j, m, 0.0F, 0.0F, CHECKMARK_WIDTH, CHECKMARK_HEIGHT, CHECKMARK_WIDTH, CHECKMARK_HEIGHT);
+                DrawableHelper.drawTexture(poseStack, j, m, 0.0F, 0.0F, CHECKMARK_WIDTH, CHECKMARK_HEIGHT, CHECKMARK_WIDTH, CHECKMARK_HEIGHT);
                 RenderSystem.disableBlend();
             }
 
@@ -356,9 +365,9 @@ public class ContextModifyingScreen extends Screen {
                 return INDENT_AMOUNT;
             }
 
-            private MessageSignature signMessage(MessageSigner messageSigner, Component component) {
+            private MessageSignature signMessage(ChatMessageSigner messageSigner, Text component) {
                 try {
-                    Signer signer = Minecraft.getInstance().getProfileKeyPairManager().signer();
+                    Signer signer = MinecraftClient.getInstance().getProfileKeys().getSigner();
                     if (signer != null) {
                         return messageSigner.sign(signer, component);
                     }
@@ -366,12 +375,12 @@ public class ContextModifyingScreen extends Screen {
                     FabricatedChatReports.LOGGER.error("Failed to sign chat message: '{}'", component.getString(), var4);
                 }
 
-                return MessageSignature.unsigned();
+                return MessageSignature.none();
             }
 
             private void reSignMessage() {
-                MessageSigner messageSigner = new MessageSigner(this.chatMessage.profileId, this.chatMessage.timestamp, this.chatMessage.salt);
-                MessageSignature fabricatedSignature = signMessage(messageSigner, Component.literal(this.text.getString()));
+                ChatMessageSigner messageSigner = new ChatMessageSigner(this.chatMessage.profileId, this.chatMessage.timestamp, this.chatMessage.salt);
+                MessageSignature fabricatedSignature = signMessage(messageSigner, Text.literal(this.text.getString()));
                 this.chatMessage.signature = new String(fabricatedSignature.saltSignature().signature());
                 this.chatMessage.salt = fabricatedSignature.saltSignature().salt();
             }
@@ -384,16 +393,16 @@ public class ContextModifyingScreen extends Screen {
                     return this.toggleInclude();
                 } else {
                     if (!ChatModifyingList.this.messageEdit.active) {
-                        ChatModifyingList.this.messageEdit.setResponder(string -> {
+                        ChatModifyingList.this.messageEdit.setChangedListener(string -> {
                             this.modifyText(string);
                             // Every time you press a key im going to re-sign the entire message cause I don't give a damn
                             // This is just to show a proof of concept so ive really been slacking on this project
                             if (this.hasChanged) this.reSignMessage();
                         });
-                        ChatModifyingList.this.messageEdit.setValue(this.text.getString());
+                        ChatModifyingList.this.messageEdit.setText(this.text.getString());
                         ChatModifyingList.this.messageEdit.active = true;
                         ChatModifyingList.this.messageEdit.visible = true;
-                        ChatModifyingList.this.messageEdit.setFocus(true);
+                        ChatModifyingList.this.messageEdit.setTextFieldFocused(true);
                         return true;
                     }
                     return false;
@@ -434,6 +443,6 @@ public class ContextModifyingScreen extends Screen {
         }
         void acceptMessage(ReportChatMessage chatMessage);
 
-        void acceptMessageBox(EditBox box);
+        void acceptMessageBox(TextFieldWidget box);
     }
 }
