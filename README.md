@@ -5,7 +5,7 @@
 
 This mod allows you to remove context from reports in order to bring the victim *out of context*, getting them banned for having said nothing bad.
 
-*The public version of the mod does not contain the 3 other vulnerabilities of the chat report system, as that may cause more chaos than im willing to take the blame for xD*
+*This version of the mod does not contain 2 other vulnerabilities of the chat report system. All vulnerabilities have been reported to Mojang*
 
 ### How to use the mod  
 It's pretty simple. When going to the report page, you will have a button that says: `Fabricate Report` which will allow you to open the fabricate report screen.  
