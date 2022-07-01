@@ -2,6 +2,8 @@ package ca.fxco.fabricatedchatreports.screens;
 
 import ca.fxco.fabricatedchatreports.FabricatedChatReports;
 import ca.fxco.fabricatedchatreports.helpers.FabricatedAbuseReport;
+import com.mojang.authlib.exceptions.MinecraftClientException;
+import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.mojang.authlib.minecraft.report.ReportChatMessage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -35,6 +37,7 @@ import java.util.function.Consumer;
 @Environment(EnvType.CLIENT)
 public class ContextModifyingScreen extends Screen {
     private static final Text CONTEXT_INFO = Text.literal("This is all the evidence that will be sent to Mojang").formatted(Formatting.GRAY);
+    private static final Text TOOLTIP_INJECT = Text.literal("Right-click messages in selection menu to copy them, then press this button to inject them into the conversation");
     @Nullable
     private final Screen lastScreen;
     private MultilineText contextInfoLabel;
@@ -54,8 +57,8 @@ public class ContextModifyingScreen extends Screen {
         this.onSelected = consumer;
     }
 
-    private void modifyAbuseReport(FabricatedAbuseReport abuseReport) {
-        List<ReportChatMessage> list = new ArrayList<>(abuseReport.evidence.messages);
+    private void modifyAbuseReport() {
+        List<ReportChatMessage> list = new ArrayList<>(this.abuseReport.evidence.messages);
         for (int i = list.size()-1; i >= 0; i--) {
             ReportChatMessage chatMessage = list.get(i);
             for (ChatModifyingList.Entry entry : chatModifyingList.children()) {
@@ -69,7 +72,18 @@ public class ContextModifyingScreen extends Screen {
                 }
             }
         }
-        abuseReport.evidence.messages = list;
+        this.abuseReport.evidence.messages = list;
+    }
+
+    private void addReportChatMessage(ReportChatMessage reportChatMessage) {
+        List<ReportChatMessage> list = new ArrayList<>(this.abuseReport.evidence.messages);
+        for (int i = list.size()-1; i >= 0; i--) {
+            if (list.get(i).timestamp.isAfter(reportChatMessage.timestamp)) {
+                list.add(i, reportChatMessage);
+                break;
+            }
+        }
+        this.abuseReport.evidence.messages = list;
     }
 
     @Override
@@ -87,6 +101,30 @@ public class ContextModifyingScreen extends Screen {
 
     @Override
     protected void init() {
+        ButtonWidget.TooltipSupplier tooltipSupplier = new ButtonWidget.TooltipSupplier() {
+            @Override
+            public void onTooltip(ButtonWidget buttonWidget, MatrixStack matrixStack, int i, int j) {
+                ContextModifyingScreen.this.renderOrderedTooltip(
+                        matrixStack, ContextModifyingScreen.this.client.textRenderer.wrapLines(TOOLTIP_INJECT, Math.max(ContextModifyingScreen.this.width / 2 - 43, 170)), i, j
+                );
+            }
+            @Override
+            public void supply(Consumer<Text> consumer) {
+                consumer.accept(TOOLTIP_INJECT);
+            }
+        };
+        this.addDrawableChild(
+                new ButtonWidget(10, 13, 120, 20, Text.literal("Inject message data"), button -> {
+                    try {
+                        ReportChatMessage reportChatMessage = ObjectMapper.create().readValue(MinecraftClient.getInstance().keyboard.getClipboard(), ReportChatMessage.class);
+                        addReportChatMessage(reportChatMessage);
+                        this.chatModifyingList.acceptMessage(reportChatMessage); // Visual
+                        this.clearAndInit();
+                    } catch (MinecraftClientException e) {
+                        //TODO: tell the user
+                    }
+                }, tooltipSupplier)
+        );
         this.contextInfoLabel = MultilineText.create(this.textRenderer, CONTEXT_INFO, this.width - 16);
         this.chatModifyingList = new ChatModifyingList(this.client, (this.contextInfoLabel.count() + 1) * 9);
         this.chatModifyingList.setRenderBackground(false);
@@ -95,7 +133,7 @@ public class ContextModifyingScreen extends Screen {
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 155, this.height - 32, 150, 20, ScreenTexts.BACK, button -> this.close()));
         this.addDrawableChild(
                 new ButtonWidget(this.width / 2 - 155 + 160, this.height - 32, 150, 20, ScreenTexts.DONE, button -> {
-                    modifyAbuseReport(this.abuseReport);
+                    modifyAbuseReport();
                     this.onSelected.accept(this.abuseReport);
                     this.close();
                 })
