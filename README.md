@@ -7,9 +7,9 @@ This mod allows you to remove context from reports in order to bring the victim 
 
 *The public version of the mod does not contain the 3 other vulnerabilities of the chat report system, as that may cause more chaos than im willing to take the blame for xD*
 
-From [@Tisawesomeness](https://github.com/Tisawesomeness):
-> You have the right to remain silent.
-> Anything you say can and will be taken out of context and sent to mojang.
+From [@Tisawesomeness](https://github.com/Tisawesomeness):  
+> You have the right to remain silent.  
+> Anything you say can and will be taken out of context and sent to mojang.  
 
 **Example:** *All messages start with a checkmark*  
 ![KKK](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/kkk.png)  
