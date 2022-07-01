@@ -3,7 +3,7 @@
 
 [![GitHub all releases](https://img.shields.io/github/downloads/fxmorin/fabricatedchatreports/total?style=flat-square&logo=github)](https://github.com/fxmorin/fabricatedchatreports)
 
-This mod allows you to remove context from reports in order to bring the victim *out of context*, getting them banned for having said nothing bad.
+This mod was solely made for the purpose of showing mojang how objectively terrible their report system is, because regardless of if you agree with the reasons to get banned, with this system anyone innocent is easily frameable. If the system as-is makes it to full release I recommend to just not use the in-game chat until the vulnerabilities are patched.
 
 *This version of the mod does not contain 2 other vulnerabilities of the chat report system. All vulnerabilities have been reported to Mojang*
 
