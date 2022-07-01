@@ -7,6 +7,17 @@ This mod allows you to remove context from reports in order to bring the victim 
 
 *The public version of the mod does not contain the 3 other vulnerabilities of the chat report system, as that may cause more chaos than im willing to take the blame for xD*
 
+### How to use the mod
+It's pretty simple. When going to the report page, you will have a button that says: `Fabricate Report` which will allow you to open the fabricate report screen.
+Once in the Fabricate Report screen you will be able to change the server ip, client version, and messages to include.
+
+*Use at your own risk!*  
+
+**Exploits this shows:**  
+- Ability to remove messages from the context  
+- Ability to modify context sent by you  
+- Ability to copy message data from one server and paste it into a report on another server (or the same server)  
+
 **Example:** *All messages start with a checkmark*  
 ![KKK](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/kkk.png)  
 ![loves hypixel](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/lovesHypixel.png)  
@@ -14,9 +25,5 @@ This mod allows you to remove context from reports in order to bring the victim 
 ![edit2](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/edit2.png)  
 ![editing](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/editing.png)  
 ![report screen](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/reportScreen.png)  
-
-### How to use the mod
-It's pretty simple. When going to the report page, you will have a button that says: `Fabricate Report` which will allow you to open the fabricate report screen.
-Once in the Fabricate Report screen you will be able to change the server ip, client version, and messages to include.
-
-*Use at your own risk!*  
+![Copy Message Data](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/copyMessageData.png)  
+![Inject Message Data](https://github.com/fxmorin/FabricatedChatReports/blob/master/images/injectMessageData.png)  
