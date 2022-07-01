@@ -412,7 +412,6 @@ public class ContextModifyingScreen extends Screen {
                 } catch (Exception var4) {
                     FabricatedChatReports.LOGGER.error("Failed to sign chat message: '{}'", component.getString(), var4);
                 }
-
                 return MessageSignature.none();
             }
 
@@ -425,12 +424,12 @@ public class ContextModifyingScreen extends Screen {
 
             @Override
             public boolean mouseClicked(double d, double e, int i) {
-                if (!this.canModify) return false;
                 if (i == 1) {
+                    if (this.wasReported) return false;
                     ChatModifyingList.this.setSelected(null);
                     return this.toggleInclude();
                 } else {
-                    if (!ChatModifyingList.this.messageEdit.active) {
+                    if (this.canModify && !ChatModifyingList.this.messageEdit.active) {
                         ChatModifyingList.this.messageEdit.setChangedListener(string -> {
                             this.modifyText(string);
                             // Every time you press a key im going to re-sign the entire message cause I don't give a damn
