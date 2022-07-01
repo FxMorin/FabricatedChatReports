@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import static ca.fxco.fabricatedchatreports.FabricatedChatReports.DEBUG_MODE;
+import static ca.fxco.fabricatedchatreports.FabricatedChatReports.DEMO_MODE;
 
 @Environment(EnvType.CLIENT)
 public record FabricatedAbuseReportSender(ReporterEnvironment environment, UserApiService userApiService) implements AbuseReportSender {
@@ -44,7 +44,7 @@ public record FabricatedAbuseReportSender(ReporterEnvironment environment, UserA
                         abuseReportRequest = new AbuseReportRequest(uUID, abuseReport, this.environment.toClientInfo(), this.environment.toThirdPartyServerInfo(), this.environment.toRealmInfo());
                     }
                     try {
-                        if (DEBUG_MODE) {
+                        if (DEMO_MODE) {
                             System.out.println(ObjectMapper.create().writeValueAsString(abuseReportRequest));
                         } else {
                             this.userApiService.reportAbuse(abuseReportRequest);
@@ -64,7 +64,7 @@ public record FabricatedAbuseReportSender(ReporterEnvironment environment, UserA
 
     @Override
     public boolean canSendReports() {
-        return DEBUG_MODE || this.userApiService.canSendReports();
+        return DEMO_MODE || this.userApiService.canSendReports();
     }
 
     private Text getHttpErrorDescription(MinecraftClientHttpException minecraftClientHttpException) {

@@ -20,10 +20,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.TextifiedException;
 
+import static ca.fxco.fabricatedchatreports.FabricatedChatReports.DEMO_MODE;
+
 public class ModifyReportScreen extends Screen {
 
     private static final Text TITLE = Text.literal("Fabricated Report Screen");
     private static final Text REPORT_SENT_MESSAGE = Text.translatable("gui.chatReport.report_sent_msg");
+    private static final Text REPORT_SENT_DEMO_MESSAGE = Text.literal("This message was not actually sent since this is a demo, due to the fact that mojang might actually be going through with these reports at the moment! Open the project and disable demo mode for the full mod!");
     private static final Text REPORT_SENDING_TITLE = Text.literal("Sending Fabricated Report").formatted(Formatting.BOLD);
     private static final Text REPORT_SENT_TITLE = Text.translatable("gui.abuseReport.sent.title").formatted(Formatting.BOLD);
     private static final Text REPORT_ERROR_TITLE = Text.translatable("gui.abuseReport.error.title").formatted(Formatting.BOLD);
@@ -169,7 +172,7 @@ public class ModifyReportScreen extends Screen {
     }
 
     private void onReportSendSuccess() {
-        this.client.setScreen(TaskScreen.createResultScreen(REPORT_SENT_TITLE, REPORT_SENT_MESSAGE, ScreenTexts.DONE, () -> this.client.setScreen(null)));
+        this.client.setScreen(TaskScreen.createResultScreen(REPORT_SENT_TITLE, DEMO_MODE ? REPORT_SENT_MESSAGE : REPORT_SENT_DEMO_MESSAGE, ScreenTexts.DONE, () -> this.client.setScreen(null)));
     }
 
     private void onReportSendError(Throwable throwable) {
