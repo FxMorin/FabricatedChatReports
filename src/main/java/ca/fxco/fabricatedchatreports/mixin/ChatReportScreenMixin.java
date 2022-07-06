@@ -2,10 +2,10 @@ package ca.fxco.fabricatedchatreports.mixin;
 
 import ca.fxco.fabricatedchatreports.screens.ModifyReportScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.abusereport.ChatReportScreen;
+import net.minecraft.client.gui.screen.report.ChatReportScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.network.abusereport.ChatAbuseReport;
 import net.minecraft.client.report.AbuseReportContext;
+import net.minecraft.client.report.ChatAbuseReport;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -45,7 +45,7 @@ public abstract class ChatReportScreenMixin extends Screen {
             method = "init",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/screen/abusereport/ChatReportScreen;onChange()V",
+                    target = "Lnet/minecraft/client/gui/screen/report/ChatReportScreen;onChange()V",
                     shift = At.Shift.BEFORE
             )
     )

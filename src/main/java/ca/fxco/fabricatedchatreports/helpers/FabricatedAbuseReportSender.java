@@ -10,7 +10,7 @@ import com.mojang.authlib.yggdrasil.request.AbuseReportRequest;
 import com.mojang.datafixers.util.Unit;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.network.abusereport.AbuseReportSender;
+import net.minecraft.client.report.AbuseReportSender;
 import net.minecraft.client.report.ReporterEnvironment;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;

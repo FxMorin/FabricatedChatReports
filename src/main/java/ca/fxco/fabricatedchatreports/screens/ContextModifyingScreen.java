@@ -412,7 +412,7 @@ public class ContextModifyingScreen extends Screen {
                 } catch (Exception var4) {
                     FabricatedChatReports.LOGGER.error("Failed to sign chat message: '{}'", component.getString(), var4);
                 }
-                return MessageSignature.none();
+                return MessageSignature.none(messageSigner.sender());
             }
 
             private void reSignMessage() {

@@ -1,8 +1,8 @@
 package ca.fxco.fabricatedchatreports.mixin;
 
 import net.minecraft.client.gui.screen.report.ChatSelectionScreen;
-import net.minecraft.client.network.abusereport.ChatAbuseReport;
 import net.minecraft.client.report.AbuseReportContext;
+import net.minecraft.client.report.ChatAbuseReport;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
