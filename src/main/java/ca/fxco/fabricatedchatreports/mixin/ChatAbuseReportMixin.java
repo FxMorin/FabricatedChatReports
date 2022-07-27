@@ -5,7 +5,7 @@ import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.mojang.authlib.minecraft.report.ReportChatMessage;
 import net.minecraft.client.report.AbuseReportContext;
 import net.minecraft.client.report.ChatAbuseReport;
-import net.minecraft.client.report.ReceivedMessage;
+import net.minecraft.client.report.log.ReceivedMessage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 

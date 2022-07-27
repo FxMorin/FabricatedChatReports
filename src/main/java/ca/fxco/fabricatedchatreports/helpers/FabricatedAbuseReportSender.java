@@ -35,10 +35,10 @@ public record FabricatedAbuseReportSender(ReporterEnvironment environment, UserA
                     if (abuseReport instanceof FabricatedAbuseReport far && far.shouldModify()) {
                         abuseReportRequest = new AbuseReportRequest(
                                 uUID,
-                                new AbuseReport(far.type, far.opinionComments, far.reason, far.evidence, far.reportedEntity, far.createdTime),
+                                new AbuseReport(far.opinionComments, far.reason, far.evidence, far.reportedEntity, far.createdTime),
                                 far.getClientVersion() != null && !Objects.equals(far.getClientVersion(), "") ? new AbuseReportRequest.ClientInfo(far.getClientVersion()) : this.environment.toClientInfo(),
                                 far.getServerIp() != null && !Objects.equals(far.getServerIp(), "") ? new AbuseReportRequest.ThirdPartyServerInfo(far.getServerIp()) : this.environment.toThirdPartyServerInfo(),
-                                this.environment.toRealmInfo() //TODO: later
+                                (this.environment.toRealmInfo() == null && (far.getRealmsId() == null || far.getRealmsSlotId() == null)) ? null : new AbuseReportRequest.RealmInfo(far.getRealmsId() == null ? this.environment.toRealmInfo().realmId : far.getRealmsId(), far.getRealmsSlotId() == null ? this.environment.toRealmInfo().slotId : far.getRealmsSlotId())
                         );
                     } else {
                         abuseReportRequest = new AbuseReportRequest(uUID, abuseReport, this.environment.toClientInfo(), this.environment.toThirdPartyServerInfo(), this.environment.toRealmInfo());

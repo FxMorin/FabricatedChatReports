@@ -4,6 +4,7 @@ import ca.fxco.fabricatedchatreports.FabricatedChatReports;
 import ca.fxco.fabricatedchatreports.helpers.FabricatedAbuseReport;
 import com.mojang.authlib.minecraft.report.AbuseReport;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.EditBox;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -35,16 +36,16 @@ public class ModifyReportScreen extends Screen {
     @Nullable
     private final Screen lastScreen;
     private ButtonWidget sendButton;
-    private UUID reportId;
-    private FabricatedAbuseReport abuseReport;
+    private final UUID reportId;
+    private final FabricatedAbuseReport abuseReport;
     private final AbuseReportContext reportingContext;
     @Nullable
     Text cannotBuildReason = null;
 
     private TextFieldWidget clientVersionEdit;
     private TextFieldWidget serverIpEdit;
-    //private EditBox realmsIdEdit; //TODO: Add later
-    //private EditBox realmsSlotEdit;
+    private TextFieldWidget realmsIdEdit;
+    private TextFieldWidget realmsSlotEdit;
 
     public ModifyReportScreen(@Nullable Screen screen, UUID reportId, AbuseReport report, AbuseReportContext reportingContext) {
         super(TITLE);
@@ -55,7 +56,6 @@ public class ModifyReportScreen extends Screen {
             this.abuseReport = far;
         } else {
             this.abuseReport = new FabricatedAbuseReport(
-                    report.type,
                     report.opinionComments,
                     report.reason,
                     report.evidence,
@@ -71,8 +71,10 @@ public class ModifyReportScreen extends Screen {
     }
 
     private void onReportChanged() {
-        this.abuseReport.setClientVersion(clientVersionEdit.getText());
-        this.abuseReport.setServerIp(serverIpEdit.getText());
+        this.abuseReport.setClientVersion(this.clientVersionEdit.getText());
+        this.abuseReport.setServerIp(this.serverIpEdit.getText());
+        this.abuseReport.setRealmsId(this.realmsIdEdit.getText());
+        this.abuseReport.setRealmsSlotId(Integer.parseInt(this.realmsSlotEdit.getText()));
         this.cannotBuildReason = isValid();
         this.sendButton.active = this.cannotBuildReason == null;
     }
@@ -80,19 +82,6 @@ public class ModifyReportScreen extends Screen {
     @Override
     protected void init() {
         int i = this.width / 2;
-        this.addDrawableChild(
-                new ButtonWidget(
-                        i - 140,
-                        this.contentTop() + 30,
-                        280,
-                        20,
-                        Text.literal("Modify chat context"),
-                        button -> this.client.setScreen(new ContextModifyingScreen(this, this.abuseReport, modifiedAbuseReport -> {
-                            this.abuseReport = modifiedAbuseReport;
-                            this.onReportChanged();
-                        }))
-                )
-        );
         this.clientVersionEdit = new TextFieldWidget(this.textRenderer, i - 50, this.contentTop() + 60, 200, 20, Text.literal("Client version"));
         this.clientVersionEdit.setMaxLength(128);
         this.clientVersionEdit.setText(this.reportingContext.environment().clientVersion());
@@ -103,10 +92,20 @@ public class ModifyReportScreen extends Screen {
         this.serverIpEdit.setText(this.reportingContext.environment().toThirdPartyServerInfo() != null ? this.reportingContext.environment().toThirdPartyServerInfo().address : "");
         this.serverIpEdit.setChangedListener(string -> this.onReportChanged());
         this.addDrawableChild(this.serverIpEdit);
+        this.realmsIdEdit = new TextFieldWidget(this.textRenderer, i - 50, this.contentTop() + 120, 200, 20, Text.literal("Realms Id"));
+        this.realmsIdEdit.setMaxLength(128);
+        this.realmsIdEdit.setText(this.reportingContext.environment().toRealmInfo() != null ? this.reportingContext.environment().toRealmInfo().realmId : "");
+        this.realmsIdEdit.setChangedListener(string -> this.onReportChanged());
+        this.addDrawableChild(this.realmsIdEdit);
+        this.realmsSlotEdit = new TextFieldWidget(this.textRenderer, i - 50, this.contentTop() + 150, 200, 20, Text.literal("Realms Slot Id"));
+        this.realmsSlotEdit.setMaxLength(128);
+        this.realmsSlotEdit.setText(this.reportingContext.environment().toRealmInfo() != null ? String.valueOf(this.reportingContext.environment().toRealmInfo().slotId) : "");
+        this.realmsSlotEdit.setChangedListener(string -> this.onReportChanged());
+        this.addDrawableChild(this.realmsSlotEdit);
         this.addDrawableChild(
                 new ButtonWidget(
                         i - 170,
-                        this.contentTop() + 135,
+                        this.contentTop() + 195,
                         160,
                         20,
                         ScreenTexts.BACK,
@@ -116,7 +115,7 @@ public class ModifyReportScreen extends Screen {
         this.sendButton = this.addDrawableChild(
                 new ButtonWidget(
                         i + 10,
-                        this.contentTop() + 135,
+                        this.contentTop() + 195,
                         160,
                         20,
                         Text.literal("Send Fabricated Report"),
@@ -147,6 +146,8 @@ public class ModifyReportScreen extends Screen {
     public void tick() {
         this.clientVersionEdit.tick();
         this.serverIpEdit.tick();
+        this.realmsIdEdit.tick();
+        this.realmsSlotEdit.tick();
         super.tick();
     }
 
