@@ -5,6 +5,7 @@ import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.mojang.authlib.minecraft.report.ReportChatMessage;
 import net.minecraft.client.report.AbuseReportContext;
 import net.minecraft.client.report.ChatAbuseReport;
+import net.minecraft.client.report.log.ChatLogEntry;
 import net.minecraft.client.report.log.ReceivedMessage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +18,7 @@ public abstract class ChatAbuseReportMixin implements ExtendedChatAbuseReport {
 
     @Override
     public String getIndexJson(AbuseReportContext reporter, int index) {
-        ReceivedMessage receivedMessage = reporter.chatLog().get(index);
+        ChatLogEntry receivedMessage = reporter.chatLog().get(index);
         return receivedMessage instanceof ReceivedMessage.ChatMessage chatMessage ?
                 ObjectMapper.create().writeValueAsString(this.toReportChatMessage(index, chatMessage)) :
                 null;
